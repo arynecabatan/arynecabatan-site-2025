@@ -9,7 +9,6 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { Captions, Thumbnails } from "yet-another-react-lightbox/plugins";
 
-
 function NextJsImage({
   photo,
   imageProps: { alt, title, sizes, className, onClick },
@@ -37,12 +36,13 @@ export function PostersGrid({ posters = [] }) {
     fullSrc: poster.fullUrl,
   }));
 
-   const slides = posters.map(poster => ({
+  const slides = posters.map((poster) => ({
     src: poster.fullUrl,
     description: poster.title,
+        width: poster.width,     // <-- Add this
+    height: poster.height, 
     thumbnail: poster.thumbnailUrl,
   }));
-
 
   return (
     <>
@@ -69,13 +69,13 @@ export function PostersGrid({ posters = [] }) {
         close={() => setIndex(-1)}
         slides={slides}
         plugins={[Captions, Thumbnails]}
-     captions={{
-            position: "bottom",
-            descriptionTextAlign: "center",
+        captions={{
+          position: "bottom",
+          descriptionTextAlign: "center",
         }}
         thumbnails={{
-            border: 0,
-            gap: 8,
+          border: 0,
+          gap: 2,
         }}
       />
     </>

@@ -2,6 +2,10 @@ import { designData } from "../components/design-config";
 import { createClient } from "@/utils/supabase/server";
 import { PostersGrid } from "../components/posters-grid";
 
+export const metadata = {
+  title: "Logos",
+};
+
 export default async function LogosPage() {
   const supabase = await createClient();
   const header = designData.galleryItems[1];
