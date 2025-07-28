@@ -1,0 +1,222 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.985 0 0);
+  --card: oklch(0.985 0 0);
+  --popover: oklch(0.985 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --foreground: oklch(0.218 0 0);
+  --card-foreground: oklch(0.218 0 0);
+  --popover-foreground: oklch(0.218 0 0);
+  --sidebar-foreground: oklch(0.218 0 0);
+  --primary: oklch(0.638 0.25 19);
+  --sidebar-primary: oklch(0.638 0.25 19);
+  --primary-foreground: oklch(0.961 0 0);
+  --sidebar-primary-foreground: oklch(0.961 0 0);
+  --secondary: oklch(0.885 0 0);
+  --accent: oklch(0.885 0 0);
+  --sidebar-accent: oklch(0.885 0 0);
+  --secondary-foreground: oklch(0.218 0 0);
+  --accent-foreground: oklch(0.218 0 0);
+  --sidebar-accent-foreground: oklch(0.218 0 0);
+  --muted: oklch(0.925 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --destructive: oklch(0.608 0.23 28);
+  --destructive-foreground: oklch(0.961 0 0);
+  --border: oklch(0.885 0 0);
+  --sidebar-border: oklch(0.885 0 0);
+  --ring: oklch(0.835 0.019 1);
+  --sidebar-ring: oklch(0.835 0.019 1);
+  --input: oklch(0.885 0 0);
+  --chart-1: oklch(0.638 0.25 19);
+  --chart-2: oklch(0.627 0.248 15);
+  --chart-3: oklch(0.59 0.237 27);
+  --chart-4: oklch(0.567 0.223 1);
+  --chart-5: oklch(0.521 0.199 17);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.3rem;
+}
+
+.dark {
+  --background: oklch(0.191 0 0);
+  --card: oklch(0.191 0 0);
+  --popover: oklch(0.191 0 0);
+  --sidebar: oklch(0.191 0 0);
+  --foreground: oklch(0.961 0 0);
+  --card-foreground: oklch(0.961 0 0);
+  --popover-foreground: oklch(0.961 0 0);
+  --sidebar-foreground: oklch(0.961 0 0);
+  --primary: oklch(0.594 0.239 22);
+  --sidebar-primary: oklch(0.594 0.239 22);
+  --primary-foreground: oklch(0.961 0 0);
+  --sidebar-primary-foreground: oklch(0.961 0 0);
+  --secondary: oklch(0.218 0 0);
+  --accent: oklch(0.218 0 0);
+  --sidebar-accent: oklch(0.218 0 0);
+  --secondary-foreground: oklch(0.961 0 0);
+  --accent-foreground: oklch(0.961 0 0);
+  --sidebar-accent-foreground: oklch(0.961 0 0);
+  --muted: oklch(0.281 0 0);
+  --muted-foreground: oklch(0.683 0 0);
+  --destructive: oklch(0.599 0.236 28);
+  --destructive-foreground: oklch(0.961 0 0);
+  --border: oklch(0.289 0 0);
+  --sidebar-border: oklch(0.289 0 0);
+  --ring: oklch(0.325 0.033 4);
+  --sidebar-ring: oklch(0.325 0.033 4);
+  --input: oklch(0.289 0 0);
+  --chart-1: oklch(0.594 0.239 22);
+  --chart-2: oklch(0.616 0.245 16);
+  --chart-3: oklch(0.612 0.242 27);
+  --chart-4: oklch(0.632 0.235 358);
+  --chart-5: oklch(0.629 0.208 12);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-popover: var(--popover);
+  --color-sidebar: var(--popover);
+  --color-foreground: var(--foreground);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 60px; 
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .prose iframe {
+    @apply w-full aspect-video border-0 rounded-xl
+  }
+}
+
+@keyframes animate-gradient {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.shimmer-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 75%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease-in-out;
+}
+
+.shimmer-button:hover::before {
+  left: 150%;
+}
+
+.animate-\[animate-gradient_3s_linear_infinite\] {
+    animation: animate-gradient 3s linear infinite;
+}
+
+.EasyMDEContainer .CodeMirror {
+  @apply bg-background text-foreground !border-border;
+}
+
+.EasyMDEContainer .cm-s-easymde .CodeMirror-cursor {
+  @apply border-foreground;
+}
+
+.EasyMDEContainer .editor-toolbar > * {
+  @apply text-sm text-foreground hover:text-muted-foreground hover:bg-muted data-[state=on]:bg-accent;
+}
+
+.EasyMDEContainer .editor-toolbar > .active,
+.editor-toolbar > button:hover,
+.editor-preview pre,
+.cm-s-easymde .cm-comment {
+  @apply !bg-background !border-border;
+}
+
+.EasyMDEContainer .CodeMirror-fullscreen {
+  @apply !bg-background !text-foreground !border-0 !border-t-1 !z-[50];
+}
+
+.editor-toolbar {
+  @apply !border-border;
+}
+
+.editor-toolbar.fullscreen {
+  @apply !bg-background !text-foreground !z-[50];
+}
+
+.editor-preview {
+  @apply !bg-background !border-border;
+}
+
+.CodeMirror .cm-s-easymde .CodeMirror-wrap {
+  @apply h-full;
+}
+
+.EasyMDEContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+}
+
+.CodeMirror {
+  flex-grow: 1 !important;
+  height: 100% !important;
+}
