@@ -618,3 +618,298 @@ export async function toggleBlogHighlightStatus(blogId, currentState) {
   revalidatePath("/blog");
   return { success: true };
 }
+
+// --- PRYNTS ---
+
+export async function createPryntAction(formData) {
+  const supabase = await createClient();
+
+  // 1. Get Album Details and Files from FormData
+  const albumCoverFile = formData.get("album_cover");
+  const imageFiles = formData.getAll("images");
+  const pryntDetails = {
+    album_id: formData.get("album_id"),
+    title: formData.get("title"),
+    description: formData.get("description"),
+    isPublished: formData.get("isPublished") === "on",
+    isOriginal: formData.get("isOriginal") === "on",
+    tags: parseTags(formData.get("tags")),
+    category: formData.get("category"),
+  };
+
+  // 2. Validate required fields
+  if (!pryntDetails.album_id || !albumCoverFile || albumCoverFile.size === 0) {
+    return { success: false, message: "Album ID and a cover image are required." };
+  }
+
+  try {
+    // 3. Upload the Album Cover
+    const coverFileName = `${pryntDetails.album_id}-cover.jpg`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("prynts")
+      .upload(`covers/${coverFileName}`, albumCoverFile, { upsert: true });
+
+    if (uploadError) throw new Error(`Cover Image Upload Failed: ${uploadError.message}`);
+
+    // 4. Create the Album record in the 'prynts' table
+    const { data: newPrynt, error: dbError } = await supabase
+      .from("prynts")
+      .insert({ ...pryntDetails, album_cover: coverFileName })
+      .select()
+      .single();
+      
+    if (dbError) throw new Error(`Database Insert Failed: ${dbError.message}`);
+
+    // 5. Correctly process and upload all album images
+    console.log(`Found ${imageFiles.length} album images to process.`);
+    if (imageFiles && imageFiles.length > 0) {
+      for (const file of imageFiles) {
+        // This check is important and now happens for EACH file
+        if (file.size > 0) {
+          const fileName = file.name;
+          const filePath = `images/${pryntDetails.album_id}/${fileName}`;
+
+          console.log(`Uploading ${fileName}...`);
+          const { error: imageUploadError } = await supabase.storage
+            .from("prynts")
+            .upload(filePath, file);
+
+          if (imageUploadError) throw new Error(`Failed to upload ${file.name}: ${imageUploadError.message}`);
+
+          const { data: newImage, error: imageDbError } = await supabase
+            .from("images")
+            .insert({ image_url: filePath, title: file.name })
+            .select("id")
+            .single();
+
+          if (imageDbError) throw new Error(`Failed to save ${file.name} to DB: ${imageDbError.message}`);
+
+          await supabase
+            .from("prynts_images_join")
+            .insert({ prynt_id: newPrynt.id, image_id: newImage.id });
+        }
+      }
+    }
+
+    revalidatePath("/admin/05-prynts");
+    return { success: true };
+
+  } catch (error) {
+    console.error("Create Prynt Album Failed:", error);
+    // In a real-world scenario, you'd add cleanup logic here to delete uploaded files if a step fails.
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deletePrynt(pryntId, imagePath) {
+  const supabase = await createClient();
+  try {
+    if (imagePath) {
+      await supabase.storage.from("prynts").remove([imagePath]);
+    }
+    // Deleting the album will also cascade and delete related entries 
+    // in `prynts_images_join` because of the `ON DELETE CASCADE` rule we set up.
+    const { error: dbError } = await supabase
+      .from("prynts")
+      .delete()
+      .eq("id", pryntId);
+
+    if (dbError) throw new Error(`Database Delete Failed: ${dbError.message}`);
+    
+    revalidatePath("/admin/05-prynts");
+    return { success: true, message: "Album deleted successfully." };
+  } catch (error) {
+    console.error("Delete Prynt Album Failed:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function togglePryntPublishStatus(pryntId, currentState) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("prynts")
+    .update({ isPublished: !currentState })
+    .eq("id", pryntId);
+
+  if (error) {
+    console.error("Error updating publish status:", error);
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath("/admin/05-prynts");
+  revalidatePath("/prynts");
+  return { success: true };
+}
+
+export async function togglePryntOriginalStatus(pryntId, currentState) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("prynts")
+    .update({ isOriginal: !currentState })
+    .eq("id", pryntId);
+
+  if (error) {
+    console.error("Error updating original status:", error);
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath("/admin/05-prynts");
+  return { success: true };
+}
+
+export async function updatePryntAction(pryntId, formData) {
+    // This function is no longer used in PryntPlan2.
+    // We will keep it here temporarily to prevent breaking anything that might still reference it.
+    console.log("updatePryntAction is deprecated and should not be used in PryntPlan2.");
+    return { success: false, message: "This action is deprecated." };
+}
+
+// NEW, IMPROVED FUNCTION: Updates album details AND the cover photo.
+export async function updatePryntDetailsAction(pryntId, formData) {
+  const supabase = await createClient();
+
+  const pryntDetails = {
+    title: formData.get("title"),
+    album_id: formData.get("album_id"),
+    description: formData.get("description"),
+    isPublished: formData.get("isPublished") === "on",
+    isOriginal: formData.get("isOriginal") === "on",
+    tags: parseTags(formData.get("tags")),
+    category: formData.get("category"),
+  };
+
+  const newAlbumCoverFile = formData.get("album_cover");
+  const currentCoverName = formData.get("currentCoverName");
+  let albumCoverName = currentCoverName;
+
+  try {
+    // Check if a new cover file was uploaded
+    if (newAlbumCoverFile && newAlbumCoverFile.size > 0) {
+        albumCoverName = `${pryntDetails.album_id}-cover-${Date.now()}.jpg`;
+        // Upload the new cover
+        await supabase.storage.from("prynts").upload(`covers/${albumCoverName}`, newAlbumCoverFile, { upsert: true });
+        // If an old cover existed, remove it
+        if (currentCoverName) {
+            await supabase.storage.from("prynts").remove([`covers/${currentCoverName}`]);
+        }
+    }
+
+    // Update the database with new text details AND the new cover name
+    const { error } = await supabase
+      .from("prynts")
+      .update({ ...pryntDetails, album_cover: albumCoverName })
+      .eq("id", pryntId);
+
+    if (error) throw error;
+
+    revalidatePath(`/admin/05-prynts/edit-prynts-album/${pryntDetails.album_id}`);
+    revalidatePath('/admin/05-prynts');
+    return { success: true };
+  } catch (error) {
+    console.error("Update Prynt Details Failed:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+// NEW FUNCTION: Adds one or more new images to an album.
+export async function addImagesToPryntAction(pryntId, albumId, formData) {
+  const supabase = await createClient();
+  const files = formData.getAll("images");
+
+  if (!files || files.length === 0) {
+    return { success: false, message: "No images provided." };
+  }
+
+  try {
+    for (const file of files) {
+      if (file.size > 0) {
+        const fileName = file.name;
+        const filePath = `images/${albumId}/${fileName}`;
+        
+        await supabase.storage.from("prynts").upload(filePath, file);
+        const { data: newImage } = await supabase.from("images").insert({ image_url: filePath, title: file.name }).select("id").single();
+        await supabase.from("prynts_images_join").insert({ prynt_id: pryntId, image_id: newImage.id });
+      }
+    }
+    revalidatePath(`/admin/05-prynts/edit-prynts-album/${albumId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Add Images Failed:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+// NEW FUNCTION: Removes a single image's link to an album and deletes it.
+export async function removeImageFromPryntAction(imageId, pryntId, imageUrl, albumId) {
+    const supabase = await createClient();
+
+    try {
+        // First, delete the link in the join table
+        const { error: joinError } = await supabase
+            .from("prynts_images_join")
+            .delete()
+            .match({ prynt_id: pryntId, image_id: imageId });
+        if (joinError) throw joinError;
+
+        // Then, delete the image record from the 'images' table
+        const { error: imageDbError } = await supabase
+            .from("images")
+            .delete()
+            .eq("id", imageId);
+        if (imageDbError) throw imageDbError;
+
+        // Finally, delete the file from storage
+        const { error: storageError } = await supabase.storage
+            .from("prynts")
+            .remove([imageUrl]);
+        if (storageError) {
+          // Log a warning but don't throw an error, as the DB records are more critical
+          console.warn("Storage Delete Warning:", storageError.message);
+        }
+        
+        revalidatePath(`/admin/05-prynts/edit-prynts-album/${albumId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Remove Image Failed:", error);
+        return { success: false, message: error.message };
+    }
+}
+
+
+export async function removeImagesFromPryntAction(imageIds, pryntId, albumId) {
+    const supabase = await createClient();
+
+    if (!imageIds || imageIds.length === 0) {
+        return { success: false, message: "No images selected for deletion." };
+    }
+
+    try {
+        // First, get the storage paths for the images we need to delete
+        const { data: images, error: selectError } = await supabase
+            .from("images")
+            .select("image_url")
+            .in("id", imageIds);
+
+        if (selectError) throw selectError;
+
+        const imageUrls = images.map(img => img.image_url);
+
+        // Delete all links from the join table in one go
+        await supabase.from("prynts_images_join").delete().in("image_id", imageIds).eq("prynt_id", pryntId);
+
+        // Delete all records from the images table in one go
+        await supabase.from("images").delete().in("id", imageIds);
+
+        // Delete all files from storage in one go
+        if (imageUrls.length > 0) {
+            await supabase.storage.from("prynts").remove(imageUrls);
+        }
+        
+        revalidatePath(`/admin/05-prynts/edit-prynts-album/${albumId}`);
+        return { success: true };
+
+    } catch (error) {
+        console.error("Batch Remove Images Failed:", error);
+        return { success: false, message: error.message };
+    }
+}

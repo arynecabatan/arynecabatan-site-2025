@@ -16,6 +16,10 @@ export const adminNavData = {
           url: "/admin/03-notes-and-experiments",
         },
         {
+          title: "Prynts",
+          url: "/admin/05-prynts",
+        },
+        {
           title: "Create New Project",
           url: "/admin/design-portfolio/new-design-project",
           hidden: true,
