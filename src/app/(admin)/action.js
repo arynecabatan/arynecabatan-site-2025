@@ -701,20 +701,19 @@ export async function createPryntAction(formData) {
   }
 }
 
-export async function deletePrynt(pryntId, imagePath) {
+export async function deletePrynt(pryntId) {
   const supabase = await createClient();
   try {
-    if (imagePath) {
-      await supabase.storage.from("prynts").remove([imagePath]);
-    }
-    // Deleting the album will also cascade and delete related entries 
-    // in `prynts_images_join` because of the `ON DELETE CASCADE` rule we set up.
+    // By deleting the album, the ON DELETE CASCADE rule on the prynts_images_join
+    // table will automatically remove the links, but not the images themselves.
     const { error: dbError } = await supabase
       .from("prynts")
       .delete()
       .eq("id", pryntId);
 
-    if (dbError) throw new Error(`Database Delete Failed: ${dbError.message}`);
+    if (dbError) {
+      throw new Error(`Database Delete Failed: ${dbError.message}`);
+    }
     
     revalidatePath("/admin/05-prynts");
     return { success: true, message: "Album deleted successfully." };
@@ -755,13 +754,6 @@ export async function togglePryntOriginalStatus(pryntId, currentState) {
 
   revalidatePath("/admin/05-prynts");
   return { success: true };
-}
-
-export async function updatePryntAction(pryntId, formData) {
-    // This function is no longer used in PryntPlan2.
-    // We will keep it here temporarily to prevent breaking anything that might still reference it.
-    console.log("updatePryntAction is deprecated and should not be used in PryntPlan2.");
-    return { success: false, message: "This action is deprecated." };
 }
 
 // NEW, IMPROVED FUNCTION: Updates album details AND the cover photo.
@@ -874,7 +866,6 @@ export async function removeImageFromPryntAction(imageId, pryntId, imageUrl, alb
         return { success: false, message: error.message };
     }
 }
-
 
 export async function removeImagesFromPryntAction(imageIds, pryntId, albumId) {
     const supabase = await createClient();

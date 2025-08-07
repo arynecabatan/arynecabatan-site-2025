@@ -18,6 +18,7 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
 
 // Updated ImageUploader with a button-based flow
 function ImageUploader({ files, setFiles }) {
@@ -149,82 +150,93 @@ export function CreateAlbumSheet() {
       <SheetTrigger asChild>
         <Button>Create New Album</Button>
       </SheetTrigger>
-      {/* ** CHANGE IS HERE: Added flex layout to the SheetContent ** */}
-      <SheetContent className="w-full sm:max-w-md flex flex-col gap-0 p-0">
-        <SheetHeader className="p-6 pb-4">
+      <SheetContent className="w-full sm:max-w-md flex flex-col gap-0">
+        <SheetHeader>
           <SheetTitle>Create a New Prynt Album</SheetTitle>
         </SheetHeader>
-
-        {/* ** CHANGE IS HERE: The form now wraps the scrollable area ** */}
         <form
           onSubmit={handleSubmit}
           id="create-album-form"
-          className="flex-1 overflow-y-auto px-6"
+          className="flex-1 overflow-y-auto p-4"
         >
           <div className="flex flex-col gap-4">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="album_cover">Album Cover</Label>
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="album_cover" className="text-xs">
+                Album Cover
+              </Label>
               <div
                 {...getCoverRootProps()}
-                className="relative aspect-video w-full cursor-pointer rounded-lg border-2 border-dashed flex items-center justify-center p-4 border-muted-foreground/20"
+                className="h-48 relative w-full cursor-pointer rounded-lg border-2 border-dashed flex items-center justify-center border-muted-foreground/20"
               >
                 <input {...getCoverInputProps()} />
                 {previewUrl ? (
                   <Image
                     src={previewUrl}
                     alt="Cover preview"
-                    fill
-                    className="object-cover rounded-lg"
+                    width={180}
+                    height={180}
+                    className="object-cover"
                   />
                 ) : (
                   <div className="text-center text-muted-foreground text-sm">
-                    <UploadCloud className="h-8 w-8 mx-auto" />
-                    <p>Drop cover image here</p>
+                    <p>Add cover image</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                type="text"
-                placeholder="Album Title"
-                required
-              />
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="album_id">Album ID (slug, no spaces)</Label>
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="album_id" className="text-xs">
+                Album ID
+              </Label>
               <Input
                 id="album_id"
                 name="album_id"
                 type="text"
-                placeholder="e.g., modern-art-vol1"
+                placeholder="RD0001"
                 required
               />
             </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="description">Description</Label>
+
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="title" className="text-xs">
+                Album title
+              </Label>
               <Input
+                id="title"
+                name="title"
+                type="text"
+                placeholder="Album title"
+                required
+              />
+            </div>
+
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="description" className="text-xs">
+                Description
+              </Label>
+              <Textarea
                 id="description"
                 name="description"
                 type="text"
                 placeholder="A short description"
               />
             </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="category">Category</Label>
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="category" className="text-xs">
+                Category
+              </Label>
               <Input
                 id="category"
                 name="category"
                 type="text"
-                placeholder="e.g., Illustrations"
+                placeholder="Illustrations"
               />
             </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <div className="grid w-full items-center gap-1">
+              <Label htmlFor="tags" className="text-xs">
+                Tags (comma-separated)
+              </Label>
               <Input
                 id="tags"
                 name="tags"
@@ -233,19 +245,19 @@ export function CreateAlbumSheet() {
               />
             </div>
 
-            <div className="rounded-lg border p-3 space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="rounded-lg border p-3 space-y-4">
+              <div className="flex items-center justify-between py-2">
                 <Label htmlFor="isPublished">Publish Album</Label>
                 <Switch id="isPublished" name="isPublished" />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between py-2">
                 <Label htmlFor="isOriginal">Original Design</Label>
                 <Switch id="isOriginal" name="isOriginal" />
               </div>
             </div>
 
-            <div>
-              <Label>Album Images</Label>
+            <div className="grid w-full items-center gap-1">
+              <Label className="text-xs">Album Images</Label>
               <ImageUploader files={albumImages} setFiles={setAlbumImages} />
             </div>
 
@@ -253,16 +265,15 @@ export function CreateAlbumSheet() {
           </div>
         </form>
 
-        {/* ** CHANGE IS HERE: The footer is now outside the scrolling area ** */}
-        <SheetFooter className="p-6 pt-4 mt-auto border-t">
+        <SheetFooter className="p-4 mt-auto border-t flex flex-row">
           <SheetClose asChild>
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" className="flex-1">
               Cancel
             </Button>
           </SheetClose>
-          {/* ** CHANGE IS HERE: The button now submits the form using its ID ** */}
           <Button
             type="submit"
+            className="flex-1"
             form="create-album-form"
             disabled={isSubmitting}
           >

@@ -19,20 +19,22 @@ export default async function PryntsAdminPage() {
 
   return (
     <div className="w-full">
-        <header className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Prynts Albums</h1>
-            <CreateAlbumSheet />
-        </header>
-        <section>
-            {pryntsWithUrls && pryntsWithUrls.length > 0 ? (
-                <AlbumGrid albums={pryntsWithUrls} />
-            ) : (
-                <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/20 text-center py-12">
-                    <h3 className="text-lg font-semibold">No albums yet</h3>
-                    <p className="text-sm text-muted-foreground">Click "Create New Album" to get started.</p>
-                </div>
-            )}
-        </section>
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Prynts Albums</h1>
+        <CreateAlbumSheet />
+      </header>
+      <section>
+        {pryntsWithUrls && pryntsWithUrls.length > 0 ? (
+          <AlbumGrid albums={pryntsWithUrls} />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center py-12">
+            <h3 className="text-lg font-semibold">No albums yet</h3>
+            <p className="text-sm text-muted-foreground">
+              Click "Create New Album" to get started.
+            </p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
