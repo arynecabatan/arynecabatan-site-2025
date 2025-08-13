@@ -22,18 +22,17 @@ export function AlbumGrid({ albums = [] }) {
   const router = useRouter();
 
   const handleDelete = async (album, e) => {
-    // Stop the click from opening the edit sheet
     e.stopPropagation();
     e.preventDefault();
 
     await deletePrynt(album.id); 
-    router.refresh(); // Refresh the grid to show the album has been removed
+    router.refresh();
   };
 
   return (
     <div className="flex flex-wrap gap-4">
       {albums.map((album) => (
-        <div key={album.id} className="group relative bg-red-500">
+        <div key={album.id} className="group relative">
           <EditAlbumSheet album={album}>
             <div className="relative cursor-pointer h-52 w-52">
               <div className="aspect-square w-full overflow-hidden rounded-lg border">
