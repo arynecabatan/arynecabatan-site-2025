@@ -6,12 +6,12 @@ import { DesignFooter } from "./components/footer";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DesignLayout({ children }) {
-  const session = await getSession();
+  // const session = await getSession();
   const supabase = await createClient();
 
-  if (!session.isAuthenticated) {
-    redirect("/design-login");
-  }
+  // if (!session.isAuthenticated) {
+  //   redirect("/design-login");
+  // }
 
   const { data: resumeSetting } = await supabase
     .from("site_settings")
